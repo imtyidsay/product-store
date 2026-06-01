@@ -1,7 +1,15 @@
 import express from "express";
+import cors from "cors";
+
 import { ENV } from "./config/env";
+import { clerkMiddleware } from '@clerk/express'
 
 const app = express();
+
+app.use(cors({ origin: ENV.FRONTEND_URL })) // allow cors
+app.use(clerkMiddleware()) // auth obj will be attached to the request object
+app.use(express.json()) // parse json bodies
+app.use(express.urlencoded({ extended: true })) // parse urlencoded bodies
 
 app.get("/", (req, res) => {
     res.json({ 
