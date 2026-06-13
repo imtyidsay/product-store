@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getCommentById = exports.deleteComment = exports.createComment = exports.deleteProduct = exports.updateProduct = exports.getProductsByUserId = exports.getProductById = exports.getAllProducts = exports.createProduct = exports.upsertUser = exports.updateUser = exports.getUserById = exports.createUser = void 0;
+exports.deleteComment = exports.createComment = exports.deleteProduct = exports.updateProduct = exports.getProductsByUserId = exports.getProductById = exports.getAllProducts = exports.createProduct = exports.upsertUser = exports.updateUser = exports.getUserById = exports.createUser = void 0;
 const index_1 = require("./index");
 const drizzle_orm_1 = require("drizzle-orm");
 const schema_1 = require("./schema");
@@ -59,20 +59,18 @@ const getProductsByUserId = async (userId) => {
 };
 exports.getProductsByUserId = getProductsByUserId;
 const updateProduct = async (id, data) => {
-    const existingProduct = await (0, exports.getProductById)(id);
-    if (!existingProduct) {
+    const [product] = await index_1.db.update(schema_1.productsTable).set(data).where((0, drizzle_orm_1.eq)(schema_1.productsTable.id, id)).returning();
+    if (!product) {
         throw new Error("Product not found");
     }
-    const [product] = await index_1.db.update(schema_1.productsTable).set(data).where((0, drizzle_orm_1.eq)(schema_1.productsTable.id, id)).returning();
     return product;
 };
 exports.updateProduct = updateProduct;
 const deleteProduct = async (id) => {
-    const existingProduct = await (0, exports.getProductById)(id);
-    if (!existingProduct) {
+    const [product] = await index_1.db.delete(schema_1.productsTable).where((0, drizzle_orm_1.eq)(schema_1.productsTable.id, id)).returning();
+    if (!product) {
         throw new Error("Product not found");
     }
-    const [product] = await index_1.db.delete(schema_1.productsTable).where((0, drizzle_orm_1.eq)(schema_1.productsTable.id, id)).returning();
     return product;
 };
 exports.deleteProduct = deleteProduct;
@@ -82,18 +80,10 @@ const createComment = async (data) => {
 };
 exports.createComment = createComment;
 const deleteComment = async (id) => {
-    const existingComment = await (0, exports.getCommentById)(id);
-    if (!existingComment) {
+    const [comment] = await index_1.db.delete(schema_1.commentsTable).where((0, drizzle_orm_1.eq)(schema_1.commentsTable.id, id)).returning();
+    if (!comment) {
         throw new Error("Comment not found");
     }
-    const [comment] = await index_1.db.delete(schema_1.commentsTable).where((0, drizzle_orm_1.eq)(schema_1.commentsTable.id, id)).returning();
     return comment;
 };
 exports.deleteComment = deleteComment;
-const getCommentById = async (id) => {
-    return index_1.db.query.commentsTable.findFirst({
-        where: (0, drizzle_orm_1.eq)(schema_1.commentsTable.id, id),
-        with: { user: true },
-    });
-};
-exports.getCommentById = getCommentById;
